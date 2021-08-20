@@ -6,20 +6,40 @@ import org.junit.jupiter.api.Test
 class CsvReadTests {
 
     @Test
-    internal fun name() {
+    internal fun `can read a genre`() {
         val inputStr = "genre;Rap"
-        val result = readGenre(inputStr)
+        val result = readFromCsv(inputStr)
 
-        Genre("Rap") shouldBe result
+        DiscAttributes.Genre("Rap") shouldBe result
     }
 
-    private fun readGenre(inputStr: String): Genre {
-        val name = inputStr
-            .split(";")
-            .last()
-        return Genre(name)
+    @Test
+    internal fun `can read a Singer`() {
+        val inputStr = "singer;Caparezza"
+        val result = readFromCsv(inputStr)
+
+        DiscAttributes.Singer("Caparezza") shouldBe result
     }
+
+    private fun readFromCsv(inputStr: String): DiscAttributes? {
+        val elements: List<String> = inputStr.split(";")
+        val (type, name) = elements
+        return DiscAttributes.of(type, name)
+    }
+
 
 }
 
-data class Genre(val name: String)
+sealed class DiscAttributes{
+    data class Singer(val stageName: String): DiscAttributes()
+    data class Genre(val name: String): DiscAttributes()
+
+    companion object {
+        fun of(type: String, name: String) = when (type) {
+            "genre" -> Genre(name)
+            "singer" -> Singer(name)
+            else -> null
+        }
+    }
+}
+
