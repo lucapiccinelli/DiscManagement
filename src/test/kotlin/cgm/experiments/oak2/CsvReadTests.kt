@@ -1,32 +1,31 @@
 package cgm.experiments.oak2
 
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.DynamicTest.dynamicTest
+import org.junit.jupiter.api.TestFactory
 
 class CsvReadTests {
 
-    @Test
-    internal fun `can read a genre`() {
-        val inputStr = "genre;Rap"
-        val result = readFromCsv(inputStr)
+    @TestFactory
+    internal fun `can read disc attributes from a csv`() = listOf(
+        "genre;Rap" to DiscAttributes.Genre("Rap"),
+        "singer;Caparezza" to DiscAttributes.Singer("Caparezza"),
+    )
+    .map { (inputStr, expectedResult) ->
+        dynamicTest("given $inputStr i expect $expectedResult") {
+            val result = CsvReader.read(inputStr)
 
-        DiscAttributes.Genre("Rap") shouldBe result
-    }
+            expectedResult shouldBe result
+    } }
 
-    @Test
-    internal fun `can read a Singer`() {
-        val inputStr = "singer;Caparezza"
-        val result = readFromCsv(inputStr)
+}
 
-        DiscAttributes.Singer("Caparezza") shouldBe result
-    }
-
-    private fun readFromCsv(inputStr: String): DiscAttributes? {
+object CsvReader{
+    fun read(inputStr: String): DiscAttributes? {
         val elements: List<String> = inputStr.split(";")
         val (type, name) = elements
         return DiscAttributes.of(type, name)
     }
-
 
 }
 
