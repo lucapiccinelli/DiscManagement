@@ -64,13 +64,14 @@ data class Disk(
 object CsvReader {
     fun read(csvInput: String) = csvInput
         .split("\n")
+        .map { line -> line.split(";").run { first() to drop(1) } }
         .let { lines ->
             val diskBuilder: DiskBuilder = lines
                 .dropLast(1)
-                .mapNotNull(CsvAttributesReader::read)
+                .mapNotNull{ (type, data) -> DiscAttribute.of(type, data) }
                 .let(DiskBuilder::ofAttributes)
 
-            val (title, dateStr) = lines.last().split(";").drop(1)
+            val (title, dateStr) = lines.last().second
             diskBuilder.build(title, LocalDate.parse(dateStr))
         }
 
